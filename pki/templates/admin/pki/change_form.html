@@ -1,8 +1,11 @@
 {% extends "admin/change_form.html" %}
 {% load ctime_js %}
 {% load pkinav %}
+{% load model %}
 
 {% block extrahead %}
+{% if add %}<script type="text/javascript">window.__pki_add__ = "{{ add }}";</script>{% endif %}
+{% if content_type_id %}<script type="text/javascript">window.__pki_model__ = "{{ content_type_id|model_for_content_type }}";</script>{% endif %}
 <script type="text/javascript">
     var C_TIME = new Date({% ctime_js %});
     
