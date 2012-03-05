@@ -215,6 +215,7 @@ class Openssl():
         else:
             env_vars = {'PKI_DIR': PKI_DIR}
         
+        logger.debug("exec: %s" % (str(c),))
         proc = Popen(c, shell=False, env=env_vars, stdin=PIPE, stdout=PIPE,
                      stderr=STDOUT)
         stdout_value, stderr_value = proc.communicate()
