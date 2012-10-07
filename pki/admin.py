@@ -5,7 +5,7 @@ from django.contrib import admin, messages
 from django.db.models import Q
 from django.http import HttpResponseRedirect
 
-from pki.models import CertificateAuthority, Certificate, x509Extension
+from pki.models import CertificateAuthority, Certificate, x509Extension, x509ExtensionFilter
 from pki.forms import CertificateAuthorityForm, CertificateForm, \
                       x509ExtensionForm
 from pki.views import admin_delete, admin_history
@@ -48,7 +48,8 @@ logger.addHandler(l_hdlr)
 ##---------------------------------##
 
 ## Disable delete_selected
-admin.site.disable_action('delete_selected')
+# temporarily disabled!
+# admin.site.disable_action('delete_selected')
 
 
 class CertificateBaseAdmin(admin.ModelAdmin):
@@ -77,7 +78,7 @@ class Certificate_Authority_Admin(CertificateBaseAdmin):
                     'Description', 'Creation_date', 'Revocation_date',
                     'Child_certs', 'Download_link', 'Email_link',)
     list_display_links = ('common_name',)
-    list_filter = ('parent', 'active', 'extension',)
+    list_filter = ('parent', 'active', ('extension', x509ExtensionFilter))
     radio_fields = {"action": admin.VERTICAL}
     search_fields = ['name', 'common_name', 'description']
     date_hierarchy = 'created'
@@ -145,7 +146,7 @@ class Certificate_Admin(CertificateBaseAdmin):
                     'Email_link')
     list_display_links = ('common_name',)
     radio_fields = {"action": admin.VERTICAL}
-    list_filter = ('parent', 'active', 'extension',)
+    list_filter = ('parent', 'active', ('extension', x509ExtensionFilter))
     search_fields = ['name', 'description']
     date_hierarchy = 'created'
     readonly_fields = ('Expiry_date', 'Creation_date', 'Revocation_date', \

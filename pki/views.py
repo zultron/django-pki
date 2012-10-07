@@ -9,7 +9,7 @@ from django.utils.safestring import mark_safe
 from django.template import RequestContext
 from django.core import urlresolvers
 
-from pki.settings import PKI_LOG, MEDIA_URL, PKI_ENABLE_GRAPHVIZ, PKI_ENABLE_EMAIL
+from pki.settings import PKI_LOG, STATIC_URL, PKI_ENABLE_GRAPHVIZ, PKI_ENABLE_EMAIL
 from pki.models import CertificateAuthority, Certificate
 from pki.forms import DeleteForm
 from pki.graphviz import ObjectChain, ObjectTree
@@ -241,7 +241,7 @@ def admin_delete(request, model, id):
         
         div_content = build_delete_item(item)
         deleted_objects.append( mark_safe('Certificate: <a href="%s">%s</a> <img src="%spki/img/plus.png" class="switch" /><div class="details">%s</div>' % \
-                                          (urlresolvers.reverse('admin:pki_certificate_change', args=(item.pk,)), item.name, MEDIA_URL, div_content)) )
+                                          (urlresolvers.reverse('admin:pki_certificate_change', args=(item.pk,)), item.name, STATIC_URL, div_content)) )
         
         ## Fill the required data for delete_confirmation.html template
         opts   = Certificate._meta

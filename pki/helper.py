@@ -8,7 +8,7 @@ import string
 from django.utils.safestring import mark_safe
 from django.core import urlresolvers
 
-from pki.settings import PKI_DIR, PKI_BASE_URL, MEDIA_URL
+from pki.settings import PKI_DIR, PKI_BASE_URL, STATIC_URL
 import pki.models
 
 logger = logging.getLogger("pki")
@@ -25,7 +25,7 @@ def get_pki_icon_html(img, title="", css="centered", id=""):
         else:
             css_class = ''
         
-        img_path = os.path.join(PKI_BASE_URL, MEDIA_URL, 'pki/img', img)
+        img_path = os.path.join(PKI_BASE_URL, STATIC_URL, 'pki/img', img)
         return '<img id="%s" %s src="%s" alt="%s" title="%s"/>' % (id,
                                                                    css_class,
                                                                    img_path,
@@ -123,7 +123,7 @@ def chain_recursion(r_id, store, id_dict):
                             <div class="details">%s</div>' % \
                             (urlresolvers.reverse(
                              'admin:pki_certificateauthority_change',
-                             args=(i.pk,)), i.name, MEDIA_URL, div_content)))
+                             args=(i.pk,)), i.name, STATIC_URL, div_content)))
     
     id_dict['ca'].append(i.pk)
     
@@ -139,7 +139,7 @@ def chain_recursion(r_id, store, id_dict):
                                      %s</div>' %
                                      (urlresolvers.reverse(
                                       'admin:pki_certificate_change',
-                                      args=(cert.pk,)), cert.name, MEDIA_URL,
+                                      args=(cert.pk,)), cert.name, STATIC_URL,
                                       div_content)))
             id_dict['cert'].append(cert.pk)
         store.append(helper)

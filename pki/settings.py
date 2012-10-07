@@ -27,7 +27,7 @@ PKI_OPENSSL_TEMPLATE = getattr(settings,
                                'PKI_OPENSSL_TEMPLATE', 'pki/openssl.conf.in')
 
 # jquery url (defaults to pki/jquery-1.3.2.min.js)
-JQUERY_URL = getattr(settings, 'JQUERY_URL', 'pki/js/jquery-1.5.min.js')
+JQUERY_URL = getattr(settings, 'JQUERY_URL', 'pki/js/jquery-1.8.2.min.js')
 
 # logging (TODO: syslog, handlers and formatters)
 PKI_LOG = getattr(settings, 'PKI_LOG', os.path.join(PKI_DIR, 'pki.log'))
@@ -37,7 +37,7 @@ PKI_LOGLEVEL = getattr(settings, 'PKI_LOGLEVEL', 'debug')
 ADMIN_MEDIA_PREFIX = getattr(settings, 'ADMIN_MEDIA_PREFIX')
 
 # media url
-MEDIA_URL = getattr(settings, 'MEDIA_URL')
+STATIC_URL = getattr(settings, 'STATIC_URL')
 
 # base url: Automatically determined
 PKI_BASE_URL = getattr(settings, 'PKI_BASE_URL', get_script_prefix())

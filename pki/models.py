@@ -10,11 +10,10 @@ from django.contrib.auth.models import User
 from django.core.validators import MinLengthValidator, MinValueValidator, \
                                    RegexValidator, URLValidator
 from django.core.exceptions import ValidationError
-from django.contrib.admin.filterspecs import FilterSpec, RelatedFilterSpec
 
 from pki.helper import get_pki_icon_html
 from pki.openssl import Openssl, md5_constructor, refresh_pki_metadata
-from pki.settings import MEDIA_URL, PKI_DEFAULT_COUNTRY, PKI_ENABLE_GRAPHVIZ, \
+from pki.settings import STATIC_URL, PKI_DEFAULT_COUNTRY, PKI_ENABLE_GRAPHVIZ, \
                          PKI_ENABLE_EMAIL, PKI_PASSPHRASE_MIN_LENGTH, \
                          PKI_DEFAULT_KEY_LENGTH
 
@@ -22,19 +21,17 @@ logger = getLogger("pki")
 
 ##------------------------------------------------------------------##
 ## Custom filters
+## https://docs.djangoproject.com/en/1.4/ref/contrib/admin/#django.contrib.admin.ModelAdmin.list_filter
 ##------------------------------------------------------------------##
+from django.contrib.admin import RelatedFieldListFilter
 
+class x509ExtensionFilter(RelatedFieldListFilter):
+    # title = 'Foobar'
+    parameter_name = 'extension'
 
-class x509ExtensionFilterSpec(RelatedFilterSpec):
-    """
-    Based on http://djangosnippets.org/snippets/1051/
-    Custom filter to display on x509 extensions that are
-    valid for the given model
-    """
-    
     def __init__(self, f, request, params, model, model_admin, \
         field_path=None):
-        super(RelatedFilterSpec, self).__init__(\
+        RelatedFieldListFilter.__init__(self, \
             f, request, params, model, model_admin, field_path=field_path)
 
         if isinstance(f, models.ManyToManyField):
@@ -56,12 +53,16 @@ class x509ExtensionFilterSpec(RelatedFilterSpec):
             self.lookup_choices = f.get_choices(include_blank=False)
 
 
-@classmethod
-def register_filterspec(cls):
-    """register the filter."""
-    FilterSpec.filter_specs.insert(0, \
-        (lambda f: getattr(f, 'x509extension_filter', False), \
-        x509ExtensionFilterSpec))
+    def lookups(self, request, model_admin):
+        return self.lookup_choices
+
+    def queryset(self, request, queryset):
+        if self.lookup_val != None:
+            filter_args = { 
+                self.lookup_kwarg: int(self.lookup_val) 
+            }
+            return queryset.filter(**filter_args)
+        return queryset
 
 ##------------------------------------------------------------------##
 
@@ -224,9 +225,8 @@ class CertificateBase(models.Model):
                                    help_text='Comma seperated list of URI \
                                    elements. Example: \
                                    URI:http://ca.local/ca.crl,...')
-    
-    extension.x509extension_filter = True
-    
+   
+
     class Meta:
         abstract = True
     
@@ -461,7 +461,7 @@ class CertificateBase(models.Model):
         """"""
         return '<div id="clock_container"><img src="%spki/img/clock-frame.png"\
                 style="margin-right:5px"/><span id="clock"></span></div>' % \
-                MEDIA_URL
+                STATIC_URL
     
     CA_Clock.allow_tags = True
     CA_Clock.short_description = "CA clock"
