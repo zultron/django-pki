@@ -69,7 +69,12 @@ Edit project's settings.py
         )
 
 5. Set MEDIA_URL and MEDIA_ROOT
-    
+
+  If you are using Django version 1.4, then these settings are automatically handled by staticfiles.
+  There is no need to make any changes to the settings.
+
+  If you are not using static files
+  =================================    
   The values of MEDIA_URL and MEDIA_ROOT depend on your configuration.
   MEDIA_ROOT is the filesystem path to the django-pki media files (<PATH_TO_DJANGO_PKI>/media). You can of cause copy or symlink the files to another location.
   MEDIA_URL is the URL part where the media files can be accessed. Here are some examples:
@@ -248,6 +253,12 @@ Initialize database
      > pki:0003_auto__add_pkichangelog
      - Loading initial data for pki.
     No fixtures found.
+
+
+Initialize database
+===================
+Load fixtures
+python manage.py loaddata pki/fixtures/eku_and_ku.json
 
 
 PKI store layout (PKI_DIR)
