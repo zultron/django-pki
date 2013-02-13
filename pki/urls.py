@@ -11,4 +11,7 @@ urlpatterns = patterns('',
         /(?P<id>\d+)/$', pki_email, name="email"),
     url(r'^pki/refresh_metadata/$', pki_refresh_metadata,
         name="refresh_metadata"),
+    url(r'^pki/scep/$', pki_scep,
+        name="scep"),
+
 )

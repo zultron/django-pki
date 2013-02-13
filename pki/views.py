@@ -8,6 +8,7 @@ from django.http import HttpResponse, Http404, HttpResponseRedirect, HttpRespons
 from django.utils.safestring import mark_safe
 from django.template import RequestContext
 from django.core import urlresolvers
+from django.views.decorators.csrf import csrf_exempt
 
 from pki.settings import PKI_LOG, STATIC_URL, PKI_ENABLE_GRAPHVIZ, PKI_ENABLE_EMAIL
 from pki.models import CertificateAuthority, Certificate
@@ -15,7 +16,7 @@ from pki.forms import DeleteForm
 from pki.graphviz import ObjectChain, ObjectTree
 from pki.email import SendCertificateData
 from pki.helper import files_for_object, chain_recursion, build_delete_item, generate_temp_file, build_zip_for_object
-from pki.openssl import refresh_pki_metadata
+from pki.openssl import refresh_pki_metadata, Openssl
 
 logger = logging.getLogger("pki")
 
@@ -282,3 +283,67 @@ def show_exception(request):
     f.close()
     
     return render_to_response('500.html', {'log': log})
+
+
+#####
+# SCEP Methods
+#####
+
+SCEP_DEFAULT = 'root'
+@csrf_exempt
+def pki_scep(request):
+    '''
+    Handle SCEP requests
+    '''
+    operation = request.GET.get('operation')
+    if not operation:
+        return HttpResponse('Operation is required', status=400)
+    message = request.GET.get('message')
+
+    return handle_scep(request, operation, message)
+
+
+# Utility method
+def handle_scep(request, operation, message=None):
+
+    if operation == 'GetCACert':
+        if message:
+            ca_name = message
+        else:
+            ca_name = SCEP_DEFAULT
+        ca = CertificateAuthority.objects.get(common_name=ca_name)
+        files = files_for_object(ca)
+        print files
+        #ossl = Openssl(ca)
+        #import pdb
+        #pdb.set_trace()
+        #pem_file = files['der']['path']
+        pem_file = '/home/dev/ca/demoCA/cacert.der'
+        f = open(pem_file)
+        pem = f.read()
+        return HttpResponse(pem, content_type='application/x-x509-ca-cert')
+
+    if operation == 'GetCACaps':
+        return HttpResponse('', content_type='text/plain')
+
+    if operation == 'PKIOperation':
+
+        f = open('/home/dev/ca/ios_req.der', 'wb')
+        f.write(request.body)
+        f.close()
+
+        if message:
+            ca_name = message
+        else:
+            ca_name = SCEP_DEFAULT
+        ca = CertificateAuthority.objects.get(common_name=ca_name)
+        files = files_for_object(ca)
+        print files
+        #ossl = Openssl(ca)
+        #import pdb
+        #pdb.set_trace()
+        pem_file = files['der']['path']
+        f = open(pem_file)
+        pem = f.read()
+        return HttpResponse(request.body, content_type='application/x-pki-message')
+

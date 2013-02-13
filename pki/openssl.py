@@ -361,6 +361,23 @@ class Openssl():
         if os.path.exists(self.crt):
             os.remove(self.crt)
     
+    def sign_given_csr(self, csr_file):
+        """Sign the CSR.
+        Certificate signing and hash creation in CA's certificate directory
+        """
+        
+        env = {self.env_pw: str(self.i.parent_passphrase),
+               "S_A_N": self.i.subjaltname, "C_D_P": self.i.crl_dpoints}
+        command = 'ca -config %s -name %s -batch -in %s -out %s -days %d \
+                  -extensions %s -passin env:%s' % (PKI_OPENSSL_CONF,
+                                                    self.i.parent.name,
+                                                    csr_file, csr_file + '.signed',
+                                                    self.i.valid_days,
+                                                    self.i.extension,
+                                                    self.env_pw)
+        self.exec_openssl(command.split(), env_vars=env)
+
+
     def sign_csr(self):
         """Sign the CSR.
         Certificate signing and hash creation in CA's certificate directory
