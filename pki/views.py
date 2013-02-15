@@ -17,6 +17,11 @@ from pki.graphviz import ObjectChain, ObjectTree
 from pki.email import SendCertificateData
 from pki.helper import files_for_object, chain_recursion, build_delete_item, generate_temp_file, build_zip_for_object
 from pki.openssl import refresh_pki_metadata, Openssl
+from ios.utils import verify_response, decrypt_response, get_pkcs7, convert_p7_to_pem
+from M2Crypto import BIO, Rand, SMIME , X509
+from M2Crypto.X509 import X509_Stack
+from M2Crypto import SMIME, X509, m2, BIO
+
 
 logger = logging.getLogger("pki")
 
@@ -305,7 +310,6 @@ def pki_scep(request):
 
 # Utility method
 def handle_scep(request, operation, message=None):
-
     if operation == 'GetCACert':
         if message:
             ca_name = message
@@ -327,23 +331,80 @@ def handle_scep(request, operation, message=None):
         return HttpResponse('', content_type='text/plain')
 
     if operation == 'PKIOperation':
+        data, apple_cert, signers = verify_response(request.body)
+        csr_der = decrypt_response(data)
 
-        f = open('/home/dev/ca/ios_req.der', 'wb')
-        f.write(request.body)
-        f.close()
+        csr_pem = to_pem_csr(csr_der)
+        print csr_pem
+        cert = gen_certificate(csr_pem)
+        print cert
+        import pdb
+        pdb.set_trace()
 
-        if message:
-            ca_name = message
-        else:
-            ca_name = SCEP_DEFAULT
-        ca = CertificateAuthority.objects.get(common_name=ca_name)
-        files = files_for_object(ca)
-        print files
-        #ossl = Openssl(ca)
-        #import pdb
-        #pdb.set_trace()
-        pem_file = files['der']['path']
-        f = open(pem_file)
-        pem = f.read()
-        return HttpResponse(request.body, content_type='application/x-pki-message')
+        cert_der = to_der_cert(cert)
+        encrypted_cert = encrypt(cert_der, signers)
+        signed_encrypted_cert = sign_profile(encrypted_cert)
+        return HttpResponse(signed_encrypted_cert, content_type='application/x-pki-message')
 
+
+def encrypt(data, signers):
+
+    buf = BIO.MemoryBuffer(data)
+    s = SMIME.SMIME()
+    # Load target cert to encrypt to.
+    s.set_x509_stack(signers)
+    # Set cipher: 3-key triple-DES in CBC mode.
+    s.set_cipher(SMIME.Cipher('des_ede3_cbc'))
+    # Encrypt the buffer.
+    p7 = s.encrypt(buf, flags=SMIME.PKCS7_BINARY)
+    return to_der_pkcs7(p7)
+
+from iterpipes import *
+def to_der_pkcs7(p7):
+    buf = BIO.memoryBuffer()
+    p7.write_der(buf)
+    op = buf.read()
+    return op
+
+def to_pem_csr(data):
+    fname = 'unencrypted_csr.der'
+    f = open(fname, 'wb')
+    f.write(data)
+    f.close()
+    openssl_convert = 'openssl req -in {} -inform der -out csr.pem -outform pem'.format(fname)
+    print openssl_convert
+    files = call(cmd(openssl_convert))
+    data2 = open('csr.pem').read()
+    return data2
+
+
+def to_der_cert(data):
+    fname = 'cert_in.pem'
+    f = open(fname, 'wb')
+    f.write(data)
+    f.close()
+    openssl_convert = 'openssl x509 -in {} -inform pem -out device_cert.der -outform der'.format(fname)
+    print openssl_convert
+    files = call(cmd(openssl_convert))
+    data2 = open('device_cert.der').read()
+    return data2
+
+
+
+
+certstore_path = '/home/dev/ca/demoCA/cacert.pem'
+key_path = '/home/dev/ca/demoCA/private/cakey.pem'
+
+def gen_certificate(data):
+    fname = 'device_csr.pem'
+    f = open(fname, 'wb')
+    f.write(data)
+    f.close()
+
+    gen_cert = 'openssl ca -in {} -out device_cert.pem -keyfile {} -key {} -cert {} -batch'.format(fname,
+                                                                                                   key_path,
+                                                                                                   'password',
+                                                                                                   certstore_path)
+    print gen_cert
+    op = call(cmd(gen_cert))
+    return open('device_cert.pem', 'rb').read()
