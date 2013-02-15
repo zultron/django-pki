@@ -328,7 +328,7 @@ def handle_scep(request, operation, message=None):
         return HttpResponse(pem, content_type='application/x-x509-ca-cert')
 
     if operation == 'GetCACaps':
-        return HttpResponse('', content_type='text/plain')
+        return HttpResponse('POSTPKIOperation\nSHA-1\nDES3\n', content_type='text/plain')
 
     if operation == 'PKIOperation':
         op = pkioperation(request.body)
