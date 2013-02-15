@@ -331,6 +331,8 @@ def handle_scep(request, operation, message=None):
         return HttpResponse('', content_type='text/plain')
 
     if operation == 'PKIOperation':
+        op = pkioperation(request.body)
+        return HttpResponse(op, content_type='application/x-pki-message')
         data, apple_cert, signers = verify_response(request.body)
         csr_der = decrypt_response(data)
 
@@ -394,6 +396,92 @@ def to_der_cert(data):
 
 certstore_path = '/home/dev/ca/demoCA/cacert.pem'
 key_path = '/home/dev/ca/demoCA/private/cakey.pem'
+
+def pkioperation(data):
+
+    input_bio = BIO.MemoryBuffer(data)
+
+    signer = SMIME.SMIME()
+    cert_store = X509.X509_Store()
+    cert_store.load_info(certstore_path)
+    signer.set_x509_store(cert_store)
+    p7 = SMIME.PKCS7(m2.pkcs7_read_bio_der(input_bio._ptr()), 1)
+    signers = p7.get0_signers(X509.X509_Stack())
+    f = open('p7signers.pem', 'w')
+    f.write(signers.pop().as_pem())
+    f.close()
+    signer.set_x509_stack(signers)
+
+    data = signer.verify(p7, flags=SMIME.PKCS7_NOVERIFY)
+
+###########################
+#Decrypt
+####
+
+    s = SMIME.SMIME()
+
+    # Load private key and cert.
+    s.load_key(key_path, certstore_path)
+    input_der = BIO.MemoryBuffer(data)
+    p7 = SMIME.PKCS7(m2.pkcs7_read_bio_der(input_der._ptr()), 1)
+    # Decrypt p7.
+    out = s.decrypt(p7)
+    f = open('csr.der', 'w')
+    f.write(out)
+    f.close()
+
+    ####
+    #Convert the certificate to pem
+    #####
+    openssl_convert = 'openssl req -in csr.der -inform der -out csr.pem'
+    call(cmd(openssl_convert))
+    #################################
+    # After decryption, we will get csr
+    # and generate cert. For now, we will use an existing certificate
+    #################################
+
+    openssl_create_cert = 'openssl x509 -req -in csr.pem \
+-extensions v3_ios -CA {} -CAkey {} -out device_cert.pem \
+-extfile /etc/ssl/openssl.cnf '.format(
+        certstore_path,
+        key_path)
+    print openssl_create_cert
+    call(cmd(openssl_create_cert))
+    ######
+    #Create degenerate pkcs7 der from the cert file
+    ####
+    openssl_degenerate = 'openssl crl2pkcs7 -nocrl -certfile device_cert.pem \
+-out degenerate_cert.p7b -outform der'
+    call(cmd(openssl_degenerate))
+    degen_der = open('degenerate_cert.p7b').read()
+    #####
+
+# Encrypt
+    openssl_encrypt = 'openssl smime -encrypt -des-ede3-cbc \
+-in degenerate_cert.p7b -out enc_cert.der -outform der -binary p7signers.pem'
+    call(cmd(openssl_encrypt))
+
+
+###Sign
+    openssl_sign = 'openssl smime -sign  -signer ra_cert.pem \
+    -in enc_cert.der -binary -out final_response_python.der -outform der -inkey ra_private.pem'
+#call(cmd(openssl_sign))
+
+    sign_data = open('enc_cert.der').read()
+    buf = BIO.MemoryBuffer(sign_data)
+    s = SMIME.SMIME()
+    s.load_key(key_path, certstore_path)
+    p7 = s.sign(buf, flags=SMIME.PKCS7_BINARY)
+    f = BIO.File(open('final_response_python.der', 'w'))
+    p7.write_der(f)
+    f.close()
+
+    f = open('final_response_python.der')
+    data = f.read()
+    print "Goodbye"
+    return data
+
+
 
 def gen_certificate(data):
     fname = 'device_csr.pem'
