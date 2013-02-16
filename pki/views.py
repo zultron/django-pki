@@ -423,10 +423,11 @@ def pkioperation(data):
 
     openssl_create_cert = 'openssl x509 -req -in csr.pem \
 -extensions v3_ios -CA {} -CAkey {} -CAserial {} -out device_cert.pem \
--extfile /etc/ssl/openssl.cnf '.format(
+-extfile {}'.format(
         certstore_path,
         key_path,
-        serial_path)
+        serial_path,
+        PKI_DIR + '/openssl.cnf')
     print openssl_create_cert
     call(cmd(openssl_create_cert))
     ######
