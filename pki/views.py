@@ -310,6 +310,7 @@ def pki_scep(request):
 CACERT_DER = PKI_DIR + '/cacert.der'
 certstore_path = PKI_DIR + '/cacert.pem'
 key_path = PKI_DIR +'/cakey.pem'
+serial_path = PKI_DIR +'/cacert.srl'
 
 # Utility method
 def handle_scep(request, operation, message=None):
@@ -421,10 +422,11 @@ def pkioperation(data):
     #################################
 
     openssl_create_cert = 'openssl x509 -req -in csr.pem \
--extensions v3_ios -CA {} -CAkey {} -out device_cert.pem \
+-extensions v3_ios -CA {} -CAkey {} -CAserial {} -out device_cert.pem \
 -extfile /etc/ssl/openssl.cnf '.format(
         certstore_path,
-        key_path)
+        key_path,
+        serial_path)
     print openssl_create_cert
     call(cmd(openssl_create_cert))
     ######
