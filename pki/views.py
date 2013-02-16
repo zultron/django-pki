@@ -10,7 +10,7 @@ from django.template import RequestContext
 from django.core import urlresolvers
 from django.views.decorators.csrf import csrf_exempt
 
-from pki.settings import PKI_LOG, STATIC_URL, PKI_ENABLE_GRAPHVIZ, PKI_ENABLE_EMAIL
+from pki.settings import PKI_LOG, STATIC_URL, PKI_ENABLE_GRAPHVIZ, PKI_ENABLE_EMAIL, PKI_DIR
 from pki.models import CertificateAuthority, Certificate
 from pki.forms import DeleteForm
 from pki.graphviz import ObjectChain, ObjectTree
@@ -307,22 +307,18 @@ def pki_scep(request):
 
     return handle_scep(request, operation, message)
 
+CACERT_DER = PKI_DIR + '/cacert.der'
+certstore_path = PKI_DIR + '/cacert.pem'
+key_path = PKI_DIR +'/cakey.pem'
 
 # Utility method
 def handle_scep(request, operation, message=None):
     if operation == 'GetCACert':
-        if message:
-            ca_name = message
-        else:
-            ca_name = SCEP_DEFAULT
-        ca = CertificateAuthority.objects.get(common_name=ca_name)
-        files = files_for_object(ca)
-        print files
         #ossl = Openssl(ca)
         #import pdb
         #pdb.set_trace()
         #pem_file = files['der']['path']
-        pem_file = '/home/dev/ca/demoCA/cacert.der'
+        pem_file = CACERT_DER
         f = open(pem_file)
         pem = f.read()
         return HttpResponse(pem, content_type='application/x-x509-ca-cert')
@@ -333,20 +329,6 @@ def handle_scep(request, operation, message=None):
     if operation == 'PKIOperation':
         op = pkioperation(request.body)
         return HttpResponse(op, content_type='application/x-pki-message')
-        data, apple_cert, signers = verify_response(request.body)
-        csr_der = decrypt_response(data)
-
-        csr_pem = to_pem_csr(csr_der)
-        print csr_pem
-        cert = gen_certificate(csr_pem)
-        print cert
-        import pdb
-        pdb.set_trace()
-
-        cert_der = to_der_cert(cert)
-        encrypted_cert = encrypt(cert_der, signers)
-        signed_encrypted_cert = sign_profile(encrypted_cert)
-        return HttpResponse(signed_encrypted_cert, content_type='application/x-pki-message')
 
 
 def encrypt(data, signers):
@@ -394,8 +376,6 @@ def to_der_cert(data):
 
 
 
-certstore_path = '/home/dev/ca/demoCA/cacert.pem'
-key_path = '/home/dev/ca/demoCA/private/cakey.pem'
 
 def pkioperation(data):
 
