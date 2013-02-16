@@ -441,7 +441,7 @@ def pkioperation(data):
     #####
 
 # Encrypt
-    openssl_encrypt = 'openssl smime -encrypt -des-ede3-cbc \
+    openssl_encrypt = 'openssl smime -encrypt -des3 \
 -in degenerate_cert.p7b -out enc_cert.der -outform der -binary p7signers.pem'
     print openssl_encrypt
     call(cmd(openssl_encrypt))
