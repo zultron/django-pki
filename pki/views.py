@@ -435,6 +435,7 @@ def pkioperation(data):
     ####
     openssl_degenerate = 'openssl crl2pkcs7 -nocrl -certfile device_cert.pem \
 -out degenerate_cert.p7b -outform der'
+    print openssl_degenerate
     call(cmd(openssl_degenerate))
     degen_der = open('degenerate_cert.p7b').read()
     #####
@@ -442,6 +443,7 @@ def pkioperation(data):
 # Encrypt
     openssl_encrypt = 'openssl smime -encrypt -des-ede3-cbc \
 -in degenerate_cert.p7b -out enc_cert.der -outform der -binary p7signers.pem'
+    print openssl_encrypt
     call(cmd(openssl_encrypt))
 
 
