@@ -315,10 +315,6 @@ serial_path = PKI_DIR +'/cacert.srl'
 # Utility method
 def handle_scep(request, operation, message=None):
     if operation == 'GetCACert':
-        #ossl = Openssl(ca)
-        #import pdb
-        #pdb.set_trace()
-        #pem_file = files['der']['path']
         pem_file = CACERT_DER
         f = open(pem_file)
         pem = f.read()
@@ -407,15 +403,18 @@ def pkioperation(data):
     p7 = SMIME.PKCS7(m2.pkcs7_read_bio_der(input_der._ptr()), 1)
     # Decrypt p7.
     out = s.decrypt(p7)
-    f = open('csr.der', 'w')
-    f.write(out)
-    f.close()
 
+
+    #f = open('csr.der', 'w')
+    #f.write(out)
+    #f.close()
     ####
     #Convert the certificate to pem
     #####
-    openssl_convert = 'openssl req -in csr.der -inform der -out csr.pem'
-    call(cmd(openssl_convert))
+    #openssl_convert = 'openssl req -in csr.der -inform der -out csr.pem'
+    #call(cmd(openssl_convert))
+    x509_request = X509.load_request_der_string(out)
+    x509_request.save_pem('csr.pem')
     #################################
     # After decryption, we will get csr
     # and generate cert. For now, we will use an existing certificate
