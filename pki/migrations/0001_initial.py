@@ -3,7 +3,7 @@ import datetime
 from south.db import db
 from south.v2 import SchemaMigration
 from django.db import models
-
+from django.conf import settings
 
 class Migration(SchemaMigration):
 
@@ -85,7 +85,7 @@ class Migration(SchemaMigration):
             ('object_id', self.gf('django.db.models.fields.IntegerField')()),
             ('action_time', self.gf('django.db.models.fields.DateTimeField')(auto_now=True, blank=True)),
             ('action', self.gf('django.db.models.fields.CharField')(max_length=64)),
-            ('user', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['auth.User'], null=True, blank=True)),
+            ('user', self.gf('django.db.models.fields.related.ForeignKey')(to=orm[settings.AUTH_USER_MODEL], null=True, blank=True)),
             ('changes', self.gf('django.db.models.fields.TextField')()),
         ))
         db.send_create_signal('pki', ['PkiChangelog'])
