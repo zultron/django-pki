@@ -17,7 +17,7 @@ from pki.graphviz import ObjectChain, ObjectTree
 from pki.email import SendCertificateData
 from pki.helper import files_for_object, chain_recursion, build_delete_item, generate_temp_file, build_zip_for_object
 from pki.openssl import refresh_pki_metadata, Openssl
-from M2Crypto import BIO, Rand, SMIME , X509
+from M2Crypto import BIO, Rand, SMIME, X509
 from M2Crypto.X509 import X509_Stack
 from M2Crypto import SMIME, X509, m2, BIO
 

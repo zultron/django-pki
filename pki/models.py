@@ -300,8 +300,10 @@ class CertificateBase(models.Model):
     
     def Revocation_date(self):
         """Return revocation date in custom format"""
-        
-        return self.revoked.strftime("%Y-%m-%d %H:%M:%S")
+        if self.revoked:
+          return self.revoked.strftime("%Y-%m-%d %H:%M:%S")
+        else:
+          return None
     
     Revocation_date.admin_order_field = 'revoked'
     

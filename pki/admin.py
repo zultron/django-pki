@@ -195,7 +195,7 @@ class Certificate_Admin(CertificateBaseAdmin):
         if db_field.name == "parent":
             kwargs["queryset"] = CertificateAuthority.objects.filter(\
                                     extension__basic_constraints__contains=(
-                                    "CA:TRUE"), active=True).filter(
+                                    "CA:TRUE"), active=True).exclude(
                                     extension__basic_constraints__contains=(
                                     "pathlen:0"))
             return db_field.formfield(**kwargs)
