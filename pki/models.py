@@ -11,6 +11,7 @@ from django.contrib.auth import get_user_model
 from django.core.validators import MinLengthValidator, MinValueValidator, \
                                    RegexValidator, URLValidator
 from django.core.exceptions import ValidationError
+from django.conf import settings
 
 from pki.helper import get_pki_icon_html
 from pki.openssl import Openssl, md5_constructor, refresh_pki_metadata
@@ -928,7 +929,11 @@ class Certificate(CertificateBase):
     
     def __unicode__(self):
         return self.common_name
-    
+
+    @property
+    def p12_path(self):
+      return os.path.join(settings.PKI_DIR, self.parent.name, "certs", "%s.cert.p12" % (self.name))
+
     ##---------------------------------##
     ## Redefined functions
     ##---------------------------------##
