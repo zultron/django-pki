@@ -529,7 +529,7 @@ class CertificateAuthority(CertificateBase):
     class Meta:
         db_table = 'pki_certificateauthority'
         verbose_name_plural = 'Certificate Authorities'
-        permissions = (("can_download", "Can download"))
+        permissions = (("can_download", "Can download"), )
 
     def __unicode__(self):
         return self.common_name
@@ -924,7 +924,7 @@ class Certificate(CertificateBase):
     class Meta:
         db_table = 'pki_certificate'
         verbose_name_plural = 'Certificates'
-        permissions = (("can_download", "Can download"))
+        permissions = (("can_download", "Can download"), )
         unique_together = (("name", "parent"), ("common_name", "parent"))
     
     def __unicode__(self):
