@@ -313,9 +313,10 @@ class Openssl():
         """Generate a PKCS12 encoded certificate.
         Passphrase is required as empty passwords not work in batch mode.
         """
-        
-        command = 'pkcs12 -export -in %s -inkey %s -out %s -passout env:%s' % (
-                  self.crt, self.key, self.pkcs12, self.env_pw)
+        chain_crl = os.path.join(PKI_DIR, self.i.parent.name, '%s-chain.cert.pem' % self.i.parent.name)
+
+        command = 'pkcs12 -export -in %s -inkey %s -out %s -passout env:%s -chain -CAfile %s' % (
+                  self.crt, self.key, self.pkcs12, self.env_pw, chain_crl)
         
         env_vars = {self.env_pw: str(self.i.pkcs12_passphrase)}
         
