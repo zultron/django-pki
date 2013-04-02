@@ -52,6 +52,18 @@ PKI_DEFAULT_KEY_LENGTH = getattr(settings, 'PKI_DEFAULT_KEY_LENGTH', 1024)
 # default_country: The default country selected (2-letter country code)
 PKI_DEFAULT_COUNTRY = getattr(settings, 'PKI_DEFAULT_COUNTRY', 'DE')
 
+# default_state: State or Province Name (full name)
+PKI_DEFAULT_STATE = getattr(settings, 'PKI_DEFAULT_STATE', '')
+
+# default_locality: Locality Name (eg, city)
+PKI_DEFAULT_LOCALITY = getattr(settings, 'PKI_DEFAULT_LOCALITY', '')
+
+# default_organization:  Organization Name (eg, company)
+PKI_DEFAULT_ORGANIZATION = getattr(settings, 'PKI_DEFAULT_ORGANIZATION', '')
+
+# default OU:  Organizational Unit Name (eg, section)
+PKI_DEFAULT_OU = getattr(settings, 'PKI_DEFAULT_OU', '')
+
 # passphrase_min_length: The minimum passphrase length
 PKI_PASSPHRASE_MIN_LENGTH = getattr(settings, 'PKI_PASSPHRASE_MIN_LENGTH', 8)
 

@@ -198,10 +198,13 @@ class CertificateBase(models.Model):
     description = models.CharField(max_length=255)
     country = models.CharField(max_length=2, choices=COUNTRY, default='%s'
                                % PKI_DEFAULT_COUNTRY.upper())
-    state = models.CharField(max_length=32)
-    locality = models.CharField(max_length=32)
-    organization = models.CharField(max_length=64)
-    OU = models.CharField(max_length=64, blank=True, null=True)
+    state = models.CharField(max_length=32, default='%s' % PKI_DEFAULT_STATE)
+    locality = models.CharField(max_length=32,
+                                default='%s' % PKI_DEFAULT_LOCALITY)
+    organization = models.CharField(max_length=64,
+                                    default='%s' % PKI_DEFAULT_ORGANIZATION)
+    OU = models.CharField(max_length=64, blank=True, null=True, 
+                          default='%s' % PKI_DEFAULT_OU)
     email = models.EmailField(blank=True, null=True)
     valid_days = models.IntegerField(validators=[MinValueValidator(1)])
     key_length = models.IntegerField(choices=KEY_LENGTH,

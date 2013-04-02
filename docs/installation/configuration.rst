@@ -124,6 +124,18 @@ You can use any combination of the following parameters:
 **PKI_DEFAULT_COUNTRY** (*Default = DE; Type = Python String*)
     The default country (as 2-letter code) selected (http://en.wikipedia.org/wiki/ISO_3166-1_alpha-2)
 
+**PKI_DEFAULT_STATE** (*Default = ''; Type = Python String*)
+    The default state or province name (full name)
+
+**PKI_DEFAULT_LOCALITY** (*Default = ''; Type = Python String*)
+    The default locality name (eg. city)
+
+**PKI_DEFAULT_ORGANIZATION** (*Default = ''; Type = Python String*)
+    The default organization name (eg. company)
+
+**PKI_DEFAULT_OU** (*Default = ''; Type = Python String*)
+    The default organizational unit name (eg. section)
+
 **PKI_PASSPHRASE_MIN_LENGTH** (*Default = 8; Type = Python Number*)
     The minimum length for passphrases
 
