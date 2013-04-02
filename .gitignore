@@ -5,3 +5,4 @@ dist/
 build/
 MANIFEST
 docs/_build/
+/django_pki.egg-info/
