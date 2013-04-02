@@ -11,10 +11,7 @@ from django.test.client import Client
 from django.test import TestCase
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
-from django.contrib.auth.models import Permission  # User
-
-from django.contrib.auth import get_user_model
-User = get_user_model()
+from django.contrib.auth.models import User, Permission
 
 from windmill.authoring import djangotest 
 

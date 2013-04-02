@@ -6,8 +6,7 @@ from logging import getLogger
 from django.db import models
 from django.core import urlresolvers
 from django.contrib.contenttypes.models import ContentType
-# from django.contrib.auth.models import User
-from django.contrib.auth import get_user_model
+from django.contrib.auth.models import User
 from django.core.validators import MinLengthValidator, MinValueValidator, \
                                    RegexValidator, URLValidator
 from django.core.exceptions import ValidationError
@@ -15,11 +14,11 @@ from django.conf import settings
 
 from pki.helper import get_pki_icon_html
 from pki.openssl import Openssl, md5_constructor, refresh_pki_metadata
-from pki.settings import STATIC_URL, PKI_DEFAULT_COUNTRY, PKI_ENABLE_GRAPHVIZ, \
-                         PKI_ENABLE_EMAIL, PKI_PASSPHRASE_MIN_LENGTH, \
-                         PKI_DEFAULT_KEY_LENGTH
+from pki.settings import STATIC_URL, PKI_DEFAULT_COUNTRY, PKI_DEFAULT_STATE, \
+    PKI_DEFAULT_LOCALITY, PKI_DEFAULT_ORGANIZATION, PKI_DEFAULT_OU, \
+    PKI_ENABLE_GRAPHVIZ, PKI_ENABLE_EMAIL, PKI_PASSPHRASE_MIN_LENGTH, \
+    PKI_DEFAULT_KEY_LENGTH
 
-User = get_user_model()
 logger = getLogger("pki")
 
 ##------------------------------------------------------------------##
