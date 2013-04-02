@@ -68,24 +68,35 @@ Edit project's settings.py
             'pki',
         )
 
-5. Set MEDIA_URL and MEDIA_ROOT
+5. Set STATIC_URL and STATICFILES_DIRS
 
   If you are using Django version 1.4, then these settings are automatically handled by staticfiles.
   There is no need to make any changes to the settings.
 
-  If you are not using static files
-  =================================    
-  The values of MEDIA_URL and MEDIA_ROOT depend on your configuration.
-  MEDIA_ROOT is the filesystem path to the django-pki media files (<PATH_TO_DJANGO_PKI>/media). You can of cause copy or symlink the files to another location.
-  MEDIA_URL is the URL part where the media files can be accessed. Here are some examples:
+5.1  If you are not using static files
+
+  The values of STATIC_URL and STATICFILES_DIRS depend on your
+  configuration.  STATICFILES_DIRS is the filesystem path to the
+  django-pki static files (<PATH_TO_DJANGO_PKI>/media). You can of
+  course copy or symlink the files to another location.  STATIC_URL is
+  the URL part where the media files can be accessed.  Examples:
 
   .. code-block:: python
 
-    MEDIA_ROOT = '/Library/Python/2.6/site-packages/pki/media/'
-    MEDIA_ROOT = '/var/www/myhost/static/pki'
+    STATICFILES_DIRS = '/Library/Python/2.6/site-packages/pki/media/'
+    STATICFILES_DIRS = '/var/www/myhost/static/pki'
     
-    MEDIA_URL = '/static/'
-    MEDIA_URL = '/pki_media/'
+    STATIC_URL = '/static/'
+    STATIC_URL = '/pki_media/'
+
+5.2  Test
+
+  Check that django can find the files from your project:
+
+  ::
+
+    python manage.py findstatic pki/js/pki_admin.js
+
 
 6. Set ADMIN_MEDIA_PREFIX
 
